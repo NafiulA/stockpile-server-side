@@ -14,14 +14,14 @@ async function run() {
     try {
         await client.connect();
         const database = client.db("stockpile");
-        const productCollection = database.collection("products");
+        const inventoryCollection = database.collection("products");
         const emailCollection = database.collection('newsletterEmails');
 
         app.get("/products", async (req, res) => {
             const page = parseInt(req.query?.page) || 0;
             const size = parseInt(req.query.size);
             const query = {};
-            const cursor = productCollection.find(query);
+            const cursor = inventoryCollection.find(query);
             let products;
             if (page || size) {
                 products = await cursor.skip(size * page).limit(size).toArray();
@@ -31,6 +31,19 @@ async function run() {
             }
             res.send(products);
         });
+
+        app.get('/inventoryCount', async (req, res) => {
+            const count = await inventoryCollection.estimatedDocumentCount();
+            res.send({ count });
+        });
+
+        app.get("/inventory/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await inventoryCollection.findOne(query);
+            res.send(result);
+        });
+
 
 
         app.post("/newsletterEmails", async (req, res) => {
