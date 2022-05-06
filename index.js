@@ -15,7 +15,7 @@ async function run() {
         await client.connect();
         const database = client.db("stockpile");
         const productCollection = database.collection("products");
-        const emailCollection = database.collection('emails');
+        const emailCollection = database.collection('newsletterEmails');
 
         app.get("/products", async (req, res) => {
             const page = parseInt(req.query?.page) || 0;
@@ -31,6 +31,14 @@ async function run() {
             }
             res.send(products);
         });
+
+
+        app.post("/newsletterEmails", async (req, res) => {
+            const email = req.body;
+            const result = await emailCollection.insertOne(email);
+            res.send(result);
+        });
+
     } finally {
 
     }
