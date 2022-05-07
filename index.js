@@ -44,7 +44,25 @@ async function run() {
             res.send(result);
         });
 
+        app.put("/updatequantity/:id", async (req, res) => {
+            const incAmount = parseInt(req.query.incAmount);
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const newQuantity = {
+                $inc: {
+                    quantity: incAmount,
+                },
+            };
+            const result = await inventoryCollection.updateOne(filter, newQuantity)
+            res.send(result);
+        });
 
+        app.delete("/deleteinventory/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await inventoryCollection.deleteOne(query);
+            res.send(result);
+        });
 
         app.post("/newsletterEmails", async (req, res) => {
             const email = req.body;
