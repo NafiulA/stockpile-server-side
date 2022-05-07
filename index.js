@@ -17,23 +17,47 @@ async function run() {
         const inventoryCollection = database.collection("products");
         const emailCollection = database.collection('newsletterEmails');
 
-        app.get("/products", async (req, res) => {
+        app.get("/inventories", async (req, res) => {
             const page = parseInt(req.query?.page) || 0;
             const size = parseInt(req.query.size);
             const query = {};
             const cursor = inventoryCollection.find(query);
-            let products;
+            let inventories;
             if (page || size) {
-                products = await cursor.skip(size * page).limit(size).toArray();
+                inventories = await cursor.skip(size * page).limit(size).toArray();
             }
             else {
-                products = await cursor.toArray();
+                inventories = await cursor.toArray();
             }
-            res.send(products);
+            res.send(inventories);
+        });
+
+        app.get("/myitem", async (req, res) => {
+            const page = parseInt(req.query?.page) || 0;
+            const size = parseInt(req.query.size);
+            const email = req.query.email;
+            const query = { userEmail: email };
+            const cursor = inventoryCollection.find(query);
+            let myitems;
+            if (page || size) {
+                myitems = await cursor.skip(size * page).limit(size).toArray();
+            }
+            else {
+                myitems = await cursor.toArray();
+            }
+            res.send(myitems);
         });
 
         app.get('/inventoryCount', async (req, res) => {
             const count = await inventoryCollection.estimatedDocumentCount();
+            res.send({ count });
+        });
+
+        app.get('/myitemCount', async (req, res) => {
+            const email = req.query.email;
+
+            const query = { userEmail: email };
+            const count = await inventoryCollection.countDocuments(query);
             res.send({ count });
         });
 
